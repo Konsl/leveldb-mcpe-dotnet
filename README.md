@@ -8,3 +8,4 @@ leveldb-mcpe for C#
 
 ## Changes to leveldb-mcpe:
 - export all functions in c.h
+- function to set a specific compressor in leveldb_options_t
