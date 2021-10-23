@@ -58,8 +58,21 @@ struct leveldb_cache_t        { Cache*            rep; };
 struct leveldb_seqfile_t      { SequentialFile*   rep; };
 struct leveldb_randomfile_t   { RandomAccessFile* rep; };
 struct leveldb_writablefile_t { WritableFile*     rep; };
-struct leveldb_logger_t       { Logger*           rep; };
 struct leveldb_filelock_t     { FileLock*         rep; };
+
+struct leveldb_logger_t : public Logger {
+    void* state_;
+    void (*destructor_)(void*);
+    void (*logv_)(void*, const char*, va_list);
+
+    virtual ~leveldb_logger_t() {
+        (destructor_)(state_);
+    }
+
+    virtual void Logv(const char* format, va_list ap) {
+        (logv_)(state_, format, ap);
+    }
+};
 
 struct leveldb_comparator_t : public Comparator {
   void* state_;
@@ -427,7 +440,7 @@ void leveldb_options_set_env(leveldb_options_t* opt, leveldb_env_t* env) {
 }
 
 void leveldb_options_set_info_log(leveldb_options_t* opt, leveldb_logger_t* l) {
-  opt->rep.info_log = (l ? l->rep : NULL);
+  opt->rep.info_log = l;
 }
 
 void leveldb_options_set_write_buffer_size(leveldb_options_t* opt, size_t s) {
@@ -617,6 +630,19 @@ leveldb_env_t* leveldb_create_default_env() {
 void leveldb_env_destroy(leveldb_env_t* env) {
   if (!env->is_default) delete env->rep;
   delete env;
+}
+
+leveldb_logger_t* leveldb_logger_create(void* state, void(*destructor)(void*), void(*logv)(void*, const char*, va_list))
+{
+    leveldb_logger_t* logger = new leveldb_logger_t;
+    logger->state_ = state;
+    logger->destructor_ = destructor;
+    logger->logv_ = logv;
+    return logger;
+}
+
+void leveldb_logger_destroy(leveldb_logger_t* l) {
+    delete l;
 }
 
 void leveldb_free(void* ptr) {

@@ -112,6 +112,8 @@ namespace LevelDBMCPE
             _leveldb_cache_destroy = (leveldb_cache_destroy)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_cache_destroy"), typeof(leveldb_cache_destroy));
             _leveldb_create_default_env = (leveldb_create_default_env)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_create_default_env"), typeof(leveldb_create_default_env));
             _leveldb_env_destroy = (leveldb_env_destroy)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_env_destroy"), typeof(leveldb_env_destroy));
+            _leveldb_logger_create = (leveldb_logger_create)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_logger_create"), typeof(leveldb_logger_create));
+            _leveldb_logger_destroy = (leveldb_logger_destroy)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_logger_destroy"), typeof(leveldb_logger_destroy));
             _leveldb_free = (leveldb_free)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_free"), typeof(leveldb_free));
             _leveldb_major_version = (leveldb_major_version)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_major_version"), typeof(leveldb_major_version));
             _leveldb_minor_version = (leveldb_minor_version)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_minor_version"), typeof(leveldb_minor_version));
@@ -367,6 +369,23 @@ namespace LevelDBMCPE
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private unsafe delegate void leveldb_env_destroy(IntPtr env);
 
+        /* Logger */
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate IntPtr leveldb_logger_create(
+            void* state,
+            leveldb_logger_destructor destructor,
+            leveldb_logger_logv logv);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void leveldb_logger_destroy(IntPtr logger);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void leveldb_logger_destructor(IntPtr state);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void leveldb_logger_logv(IntPtr state, string format, IntPtr ap);
+
         /* Utility */
 
         /* Calls free(ptr).
@@ -450,6 +469,8 @@ namespace LevelDBMCPE
         private static leveldb_cache_destroy _leveldb_cache_destroy;
         private static leveldb_create_default_env _leveldb_create_default_env;
         private static leveldb_env_destroy _leveldb_env_destroy;
+        private static leveldb_logger_create _leveldb_logger_create;
+        private static leveldb_logger_destroy _leveldb_logger_destroy;
         private static leveldb_free _leveldb_free;
         private static leveldb_major_version _leveldb_major_version;
         private static leveldb_minor_version _leveldb_minor_version;
@@ -1134,6 +1155,31 @@ namespace LevelDBMCPE
         {
             Init();
             _leveldb_env_destroy(env);
+        }
+
+        public delegate void LevelDBLoggerDestructor(IntPtr state);
+        public delegate void LevelDBLoggerLogv(IntPtr state, string format, IntPtr ap);
+        public static IntPtr LevelDBLoggerCreate(IntPtr state, LevelDBLoggerDestructor destructor, LevelDBLoggerLogv logv)
+        {
+            Init();
+            unsafe
+            {
+                leveldb_logger_logv unsafeLogv = (IntPtr ptr, string format, IntPtr ap) =>
+                {
+                    logv(ptr, format, ap);
+                };
+                leveldb_logger_destructor unsafeDestructor = (IntPtr ptr) =>
+                {
+                    destructor(ptr);
+                };
+                return _leveldb_logger_create((void*)state, unsafeDestructor, unsafeLogv);
+            }
+        }
+
+        public static void LevelDBLoggerDestroy(IntPtr logger)
+        {
+            Init();
+            _leveldb_logger_destroy(logger);
         }
 
         public static void LevelDBFree(IntPtr ptr)

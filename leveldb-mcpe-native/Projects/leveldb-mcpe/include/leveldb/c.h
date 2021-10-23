@@ -273,6 +273,14 @@ extern DLLX void leveldb_cache_destroy(leveldb_cache_t* cache);
 extern DLLX leveldb_env_t* leveldb_create_default_env();
 extern DLLX void leveldb_env_destroy(leveldb_env_t*);
 
+/* Logger */
+
+extern DLLX leveldb_logger_t* leveldb_logger_create(
+    void* state,
+    void (*destructor)(void*),
+    void (*logv)(void*, const char*, va_list));
+extern DLLX void leveldb_logger_destroy(leveldb_logger_t*);
+
 /* Utility */
 
 /* Calls free(ptr).

@@ -7,6 +7,17 @@ namespace LibraryTest
 {
     class Program
     {
+        class NullLogger : ILogger
+        {
+            public void Destructor()
+            {
+            }
+
+            public void Logv(string format, Stream ap)
+            {
+            }
+        }
+
         static void Main(string[] args)
         {
             if (File.Exists(Path.Combine(Path.GetTempPath(), "LevelDB-MCPE.dll")))
@@ -17,6 +28,7 @@ namespace LibraryTest
             options.ParanoidChecks = false;
             options.CreateIfMissing = false;
             options.Compression = Compression.ZlibCompression;
+            options.InfoLog = Logger.Create(new NullLogger());
 
             DB db = DB.Open(".\\db\\", options);
 
