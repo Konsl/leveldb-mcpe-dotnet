@@ -209,6 +209,7 @@ enum {
   leveldb_zlib_raw_compression = 4
 };
 extern DLLX void leveldb_options_set_compression(leveldb_options_t*, int);
+extern DLLX void leveldb_options_set_compression_by_index(leveldb_options_t*, int, int);
 
 /* Comparator */
 

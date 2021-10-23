@@ -94,6 +94,7 @@ namespace LevelDBMCPE
             _leveldb_options_set_block_size = (leveldb_options_set_block_size)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_options_set_block_size"), typeof(leveldb_options_set_block_size));
             _leveldb_options_set_block_restart_interval = (leveldb_options_set_block_restart_interval)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_options_set_block_restart_interval"), typeof(leveldb_options_set_block_restart_interval));
             _leveldb_options_set_compression = (leveldb_options_set_compression)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_options_set_compression"), typeof(leveldb_options_set_compression));
+            _leveldb_options_set_compression_by_index = (leveldb_options_set_compression_by_index)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_options_set_compression_by_index"), typeof(leveldb_options_set_compression_by_index));
             _leveldb_comparator_create = (leveldb_comparator_create)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_comparator_create"), typeof(leveldb_comparator_create));
             _leveldb_comparator_destroy = (leveldb_comparator_destroy)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_comparator_destroy"), typeof(leveldb_comparator_destroy));
             _leveldb_filterpolicy_create = (leveldb_filterpolicy_create)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_filterpolicy_create"), typeof(leveldb_filterpolicy_create));
@@ -279,6 +280,9 @@ namespace LevelDBMCPE
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private unsafe delegate void leveldb_options_set_compression(IntPtr options, int compression);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void leveldb_options_set_compression_by_index(IntPtr options, int compression, int index);
+
         /* Comparator */
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -428,6 +432,7 @@ namespace LevelDBMCPE
         private static leveldb_options_set_block_size _leveldb_options_set_block_size;
         private static leveldb_options_set_block_restart_interval _leveldb_options_set_block_restart_interval;
         private static leveldb_options_set_compression _leveldb_options_set_compression;
+        private static leveldb_options_set_compression_by_index _leveldb_options_set_compression_by_index;
         private static leveldb_comparator_create _leveldb_comparator_create;
         private static leveldb_comparator_destroy _leveldb_comparator_destroy;
         private static leveldb_filterpolicy_create _leveldb_filterpolicy_create;
@@ -960,13 +965,20 @@ namespace LevelDBMCPE
         public enum LevelDBCompression : int
         {
             NoCompression = 0,
-            ZlibCompression = 2
+            ZlibCompression = 2,
+            RawZlibCompression = 4
         }
 
         public static void LevelDBOptionsSetCompression(IntPtr options, LevelDBCompression value)
         {
             Init();
             _leveldb_options_set_compression(options, (int)value);
+        }
+
+        public static void LevelDBOptionsSetCompressionByIndex(IntPtr options, LevelDBCompression value, int index)
+        {
+            Init();
+            _leveldb_options_set_compression_by_index(options, (int)value, index);
         }
 
         public delegate string LevelDBComparatorName(IntPtr state);

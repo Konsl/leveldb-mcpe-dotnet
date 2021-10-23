@@ -469,6 +469,26 @@ void leveldb_options_set_compression(leveldb_options_t* opt, int t) {
   }
 }
 
+DLLX void leveldb_options_set_compression_by_index(leveldb_options_t* opt, int t, int idx)
+{
+    switch (t) {
+    case 0:
+        opt->rep.compressors[idx] = nullptr;
+        break;
+#ifdef SNAPPY
+    case leveldb_snappy_compression:
+        opt->rep.compressors[idx] = new leveldb::SnappyCompressor();
+        break;
+#endif
+    case leveldb_zlib_compression:
+        opt->rep.compressors[idx] = new leveldb::ZlibCompressor();
+        break;
+    case leveldb_zlib_raw_compression:
+        opt->rep.compressors[idx] = new leveldb::ZlibCompressorRaw();
+        break;
+    }
+}
+
 leveldb_comparator_t* leveldb_comparator_create(
     void* state,
     void (*destructor)(void*),

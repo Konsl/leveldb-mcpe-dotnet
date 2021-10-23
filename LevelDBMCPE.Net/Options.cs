@@ -148,5 +148,11 @@ namespace LevelDBMCPE
                 Library.LevelDBOptionsSetCompression(NativeHandle, (Library.LevelDBCompression)value);
             }
         }
+
+        public void SetCompression(Compression value, int index = 0)
+        {
+            EnsureNotDisposed();
+            Library.LevelDBOptionsSetCompressionByIndex(NativeHandle, (Library.LevelDBCompression)value, index);
+        }
     }
 }
