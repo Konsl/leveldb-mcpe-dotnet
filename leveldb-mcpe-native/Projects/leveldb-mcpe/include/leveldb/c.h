@@ -288,7 +288,7 @@ extern DLLX int leveldb_major_version();
 extern DLLX int leveldb_minor_version();
 
 #ifdef __cplusplus
-}  /* end DLLX "C" */
+}  /* end extern "C" */
 #endif
 
 #endif  /* STORAGE_LEVELDB_INCLUDE_C_H_ */
