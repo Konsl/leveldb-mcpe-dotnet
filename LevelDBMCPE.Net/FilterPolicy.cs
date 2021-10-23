@@ -6,10 +6,12 @@ namespace LevelDBMCPE
     public class FilterPolicy : NativeObject
     {
         private IntPtr State;
+        private List<Delegate> delegates;
 
-        protected FilterPolicy(IntPtr handle, IntPtr state) : base(handle)
+        protected FilterPolicy(IntPtr handle, IntPtr state, List<Delegate> _delegates) : base(handle)
         {
             State = state;
+            delegates = _delegates;
         }
 
         public static FilterPolicy Create(IFilterPolicy filterPolicy)
@@ -19,12 +21,13 @@ namespace LevelDBMCPE
                 state = new IntPtr(Utils.Random.Next());
             while (states.ContainsKey(state) || state == IntPtr.Zero);
             states[state] = filterPolicy;
-            return new FilterPolicy(Library.LevelDBFilterPolicyCreate(state, DestructorImpl, CreateFilterImpl, KeyMayMatchImpl, NameImpl), state);
+            List<Delegate> delegates = new List<Delegate>();
+            return new FilterPolicy(Library.LevelDBFilterPolicyCreate(state, DestructorImpl, CreateFilterImpl, KeyMayMatchImpl, NameImpl, delegates), state, delegates);
         }
 
         public static FilterPolicy CreateBloom(int bitsPerKey)
         {
-            return new FilterPolicy(Library.LevelDBFilterPolicyCreateBloom(bitsPerKey), IntPtr.Zero);
+            return new FilterPolicy(Library.LevelDBFilterPolicyCreateBloom(bitsPerKey), IntPtr.Zero, new List<Delegate>());
         }
 
         private static Dictionary<IntPtr, IFilterPolicy> states = new Dictionary<IntPtr, IFilterPolicy>();
@@ -56,12 +59,16 @@ namespace LevelDBMCPE
             return false;
         }
 
+        protected override void DisposeManagedResources()
+        {
+            states.Remove(State);
+            delegates.Clear();
+        }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();
             Library.LevelDBFilterPolicyDestroy(NativeHandle);
-            if (states.ContainsKey(State))
-                states.Remove(State);
             State = IntPtr.Zero;
         }
     }

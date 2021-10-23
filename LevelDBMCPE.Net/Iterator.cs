@@ -5,23 +5,32 @@ namespace LevelDBMCPE
     public class Iterator : NativeObject
     {
         public DB DB { get; internal set; }
+        public ReadOptions ReadOptions { get; internal set; }
 
         protected Iterator(IntPtr handle, DB db) : base(handle)
         {
             DB = db;
+            DB.iterators.Add(this);
         }
 
         public static Iterator Create(DB db, ReadOptions readOptions)
         {
             db.EnsureNotDisposed();
             readOptions.EnsureNotDisposed();
-            return new Iterator(Library.LevelDBCreateIterator(db, readOptions), db);
+            return new Iterator(Library.LevelDBCreateIterator(db, readOptions), db) { ReadOptions = readOptions };
         }
 
         protected override void InternalClose()
         {
             EnsureNotDisposed();
             Library.LevelDBIterDestroy(NativeHandle);
+            DB.iterators.Remove(this);
+        }
+
+        protected override void DisposeManagedResources()
+        {
+            ReadOptions.Dispose();
+            ReadOptions = null;
         }
 
         public bool IsValid

@@ -11,6 +11,8 @@ namespace LevelDBMCPE
             return new WriteOptions(Library.LevelDBWriteOptionsCreate());
         }
 
+        protected override void DisposeManagedResources() { }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();

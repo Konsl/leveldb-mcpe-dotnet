@@ -6,10 +6,12 @@ namespace LevelDBMCPE
     public class Logger : NativeObject
     {
         private IntPtr State;
+        private List<Delegate> delegates;
 
-        protected Logger(IntPtr handle, IntPtr state) : base(handle)
+        protected Logger(IntPtr handle, IntPtr state, List<Delegate> _delegates) : base(handle)
         {
             State = state;
+            delegates = _delegates;
         }
 
         public static Logger Create(ILogger logger)
@@ -19,7 +21,8 @@ namespace LevelDBMCPE
                 state = new IntPtr(Utils.Random.Next());
             while (states.ContainsKey(state));
             states[state] = logger;
-            return new Logger(Library.LevelDBLoggerCreate(state, DestructorImpl, LogvImpl), state);
+            List<Delegate> delegates = new List<Delegate>();
+            return new Logger(Library.LevelDBLoggerCreate(state, DestructorImpl, LogvImpl, delegates), state, delegates);
         }
 
         private static Dictionary<IntPtr, ILogger> states = new Dictionary<IntPtr, ILogger>();
@@ -36,11 +39,16 @@ namespace LevelDBMCPE
                 states[state].Logv(format, new UnsafeMemoryStream(ap));
         }
 
+        protected override void DisposeManagedResources()
+        {
+            states.Remove(State);
+            delegates.Clear();
+        }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();
             Library.LevelDBLoggerDestroy(NativeHandle);
-            states.Remove(State);
             State = IntPtr.Zero;
         }
     }

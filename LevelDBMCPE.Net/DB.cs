@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace LevelDBMCPE
@@ -7,12 +9,36 @@ namespace LevelDBMCPE
     {
         private DB(IntPtr handle) : base(handle) { }
 
+        internal List<Iterator> iterators = new List<Iterator>();
+        public ReadOnlyCollection<Iterator> Iterators { get => iterators.AsReadOnly(); }
+
+        internal List<Snapshot> snapshots = new List<Snapshot>();
+        public ReadOnlyCollection<Snapshot> Snapshots { get => snapshots.AsReadOnly(); }
+
+        public Options Options { get; internal set; }
+
         public static DB Open(string path, Options options = null)
         {
             if (options is null)
                 options = Options.Create();
             options.EnsureNotDisposed();
-            return new DB(Library.LevelDBOpen(options, path));
+            return new DB(Library.LevelDBOpen(options, path)) { Options = options };
+        }
+
+        protected override void DisposeManagedResources()
+        {
+            foreach (var iter in iterators.ToArray())
+            {
+                iter.Dispose();
+            }
+            iterators.Clear();
+            foreach (var snapshot in snapshots.ToArray())
+            {
+                snapshot.Dispose();
+            }
+            snapshots.Clear();
+            Options.Dispose();
+            Options = null;
         }
 
         protected override void InternalClose()
@@ -103,10 +129,10 @@ namespace LevelDBMCPE
 
             Iterator iter = CreateIterator(readOptions);
 
-            for(iter.SeekToFirst(); iter.IsValid; iter.Next())
+            for (iter.SeekToFirst(); iter.IsValid; iter.Next())
             {
                 byte[] key = iter.Key;
-                if(Utils.ArraysAreEqual(keyName, key))
+                if (Utils.ArraysAreEqual(keyName, key))
                     break;
             }
 

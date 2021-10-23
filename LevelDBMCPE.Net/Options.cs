@@ -11,12 +11,22 @@ namespace LevelDBMCPE
             return new Options(Library.LevelDBOptionsCreate());
         }
 
+        protected override void DisposeManagedResources()
+        {
+            comparator?.Dispose();
+            filterPolicy?.Dispose();
+            env?.Dispose();
+            infoLog?.Dispose();
+            cache?.Dispose();
+        }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();
             Library.LevelDBOptionsDestroy(NativeHandle);
         }
 
+        private Comparator comparator = null;
         public Comparator Comparator
         {
             set
@@ -26,9 +36,11 @@ namespace LevelDBMCPE
                     throw new ArgumentNullException(nameof(value));
                 value.EnsureNotDisposed();
                 Library.LevelDBOptionsSetComparator(NativeHandle, value);
+                comparator = value;
             }
         }
 
+        private FilterPolicy filterPolicy = null;
         public FilterPolicy FilterPolicy
         {
             set
@@ -38,6 +50,7 @@ namespace LevelDBMCPE
                     throw new ArgumentNullException(nameof(value));
                 value.EnsureNotDisposed();
                 Library.LevelDBOptionsSetFilterPolicy(NativeHandle, value);
+                filterPolicy = value;
             }
         }
 
@@ -68,6 +81,7 @@ namespace LevelDBMCPE
             }
         }
 
+        private Env env = null;
         public Env Env
         {
             set
@@ -77,9 +91,11 @@ namespace LevelDBMCPE
                     throw new ArgumentNullException(nameof(value));
                 value.EnsureNotDisposed();
                 Library.LevelDBOptionsSetEnv(NativeHandle, value);
+                env = value;
             }
         }
 
+        private Logger infoLog = null;
         public Logger InfoLog
         {
             set
@@ -89,6 +105,7 @@ namespace LevelDBMCPE
                     throw new ArgumentNullException(nameof(value));
                 value.EnsureNotDisposed();
                 Library.LevelDBOptionsSetInfoLog(NativeHandle, value);
+                infoLog = value;
             }
         }
 
@@ -110,6 +127,7 @@ namespace LevelDBMCPE
             }
         }
 
+        private Cache cache = null;
         public Cache Cache
         {
             set
@@ -119,6 +137,7 @@ namespace LevelDBMCPE
                     throw new ArgumentNullException(nameof(value));
                 value.EnsureNotDisposed();
                 Library.LevelDBOptionsSetCache(NativeHandle, value);
+                cache = value;
             }
         }
 

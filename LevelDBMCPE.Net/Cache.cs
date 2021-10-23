@@ -11,6 +11,8 @@ namespace LevelDBMCPE
             return new Cache(Library.LevelDBCacheCreateLRU(capacity));
         }
 
+        protected override void DisposeManagedResources() { }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();

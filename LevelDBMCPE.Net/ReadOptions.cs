@@ -11,6 +11,8 @@ namespace LevelDBMCPE
             return new ReadOptions(Library.LevelDBReadOptionsCreate());
         }
 
+        protected override void DisposeManagedResources() { }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();

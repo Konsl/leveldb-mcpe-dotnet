@@ -4,6 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace LevelDBMCPE
 {
@@ -1005,7 +1006,7 @@ namespace LevelDBMCPE
         public delegate string LevelDBComparatorName(IntPtr state);
         public delegate int LevelDBComparatorCompare(IntPtr state, byte[] a, byte[] b);
         public delegate void LevelDBComparatorDestructor(IntPtr state);
-        public static IntPtr LevelDBComparatorCreate(IntPtr state, LevelDBComparatorDestructor destructor, LevelDBComparatorCompare compare, LevelDBComparatorName name)
+        public static IntPtr LevelDBComparatorCreate(IntPtr state, LevelDBComparatorDestructor destructor, LevelDBComparatorCompare compare, LevelDBComparatorName name, IList<Delegate> delegates)
         {
             Init();
             unsafe
@@ -1024,6 +1025,9 @@ namespace LevelDBMCPE
                 {
                     destructor(ptr);
                 };
+                delegates.Add(unsafeName);
+                delegates.Add(unsafeCompare);
+                delegates.Add(unsafeDestructor);
                 return _leveldb_comparator_create((void*)state, unsafeDestructor, unsafeCompare, unsafeName);
             }
         }
@@ -1038,7 +1042,7 @@ namespace LevelDBMCPE
         public delegate byte[] LevelDBFilterPolicyCreateFilter(IntPtr state, byte[][] keys);
         public delegate bool LevelDBFilterPolicyKeyMayMatch(IntPtr state, byte[] key, byte[] filter);
         public delegate void LevelDBFilterPolicyDestructor(IntPtr state);
-        public static IntPtr LevelDBFilterPolicyCreate(IntPtr state, LevelDBFilterPolicyDestructor destructor, LevelDBFilterPolicyCreateFilter createFilter, LevelDBFilterPolicyKeyMayMatch keyMayMatch, LevelDBFilterPolicyName name)
+        public static IntPtr LevelDBFilterPolicyCreate(IntPtr state, LevelDBFilterPolicyDestructor destructor, LevelDBFilterPolicyCreateFilter createFilter, LevelDBFilterPolicyKeyMayMatch keyMayMatch, LevelDBFilterPolicyName name, IList<Delegate> delegates)
         {
             Init();
             unsafe
@@ -1069,6 +1073,10 @@ namespace LevelDBMCPE
                 {
                     destructor(ptr);
                 };
+                delegates.Add(unsafeName);
+                delegates.Add(unsafeCreateFilter);
+                delegates.Add(unsafeKeyMayMatch);
+                delegates.Add(unsafeDestructor);
                 return _leveldb_filterpolicy_create((void*)state, unsafeDestructor, unsafeCreateFilter, unsafeKeyMayMatch, unsafeName);
             }
         }
@@ -1159,7 +1167,7 @@ namespace LevelDBMCPE
 
         public delegate void LevelDBLoggerDestructor(IntPtr state);
         public delegate void LevelDBLoggerLogv(IntPtr state, string format, IntPtr ap);
-        public static IntPtr LevelDBLoggerCreate(IntPtr state, LevelDBLoggerDestructor destructor, LevelDBLoggerLogv logv)
+        public static IntPtr LevelDBLoggerCreate(IntPtr state, LevelDBLoggerDestructor destructor, LevelDBLoggerLogv logv, IList<Delegate> delegates)
         {
             Init();
             unsafe
@@ -1172,6 +1180,8 @@ namespace LevelDBMCPE
                 {
                     destructor(ptr);
                 };
+                delegates.Add(unsafeLogv);
+                delegates.Add(unsafeDestructor);
                 return _leveldb_logger_create((void*)state, unsafeDestructor, unsafeLogv);
             }
         }

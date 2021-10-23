@@ -9,6 +9,7 @@ namespace LevelDBMCPE
         protected Snapshot(IntPtr handle, DB db) : base(handle)
         {
             DB = db;
+            DB.snapshots.Add(this);
         }
 
         public static Snapshot Create(DB db)
@@ -26,6 +27,9 @@ namespace LevelDBMCPE
         {
             EnsureNotDisposed();
             Library.LevelDBReleaseSnapshot(DB, NativeHandle);
+            DB.snapshots.Remove(this);
         }
+
+        protected override void DisposeManagedResources() { }
     }
 }

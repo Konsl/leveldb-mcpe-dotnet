@@ -12,6 +12,8 @@ namespace LevelDBMCPE
             return new WriteBatch(Library.LevelDBWriteBatchCreate());
         }
 
+        protected override void DisposeManagedResources() { }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();

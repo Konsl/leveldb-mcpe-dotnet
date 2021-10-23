@@ -27,7 +27,8 @@ namespace LibraryTest
             options.ErrorIfExists = false;
             options.ParanoidChecks = false;
             options.CreateIfMissing = false;
-            options.Compression = Compression.ZlibCompression;
+            options.Compression = Compression.RawZlibCompression;
+            options.SetCompression(Compression.ZlibCompression, 1);
             options.InfoLog = Logger.Create(new NullLogger());
 
             DB db = DB.Open(".\\db\\", options);
@@ -67,11 +68,7 @@ namespace LibraryTest
 
             Console.ReadKey();
 
-            //iterator.Destroy();
-            //db.ReleaseSnapshot(snapshot);
-            //readOptions.Destroy();
-            //db.Close();
-            //options.Destroy();
+            db.Close();
         }
 
         public static void HexDump(byte[] array)

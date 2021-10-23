@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LevelDBMCPE
 {
     public class Comparator : NativeObject
     {
         private IntPtr State;
+        private List<Delegate> delegates;
 
-        protected Comparator(IntPtr handle, IntPtr state) : base(handle)
+        protected Comparator(IntPtr handle, IntPtr state, List<Delegate> _delegates) : base(handle)
         {
             State = state;
+            delegates = _delegates;
         }
 
         public static Comparator Create(IComparator comparator)
@@ -22,7 +21,8 @@ namespace LevelDBMCPE
                 state = new IntPtr(Utils.Random.Next());
             while (states.ContainsKey(state));
             states[state] = comparator;
-            return new Comparator(Library.LevelDBComparatorCreate(state, DestructorImpl, CompareImpl, NameImpl), state);
+            List<Delegate> delegates = new List<Delegate>();
+            return new Comparator(Library.LevelDBComparatorCreate(state, DestructorImpl, CompareImpl, NameImpl, delegates), state, delegates);
         }
 
         private static Dictionary<IntPtr, IComparator> states = new Dictionary<IntPtr, IComparator>();
@@ -47,11 +47,16 @@ namespace LevelDBMCPE
             return 0;
         }
 
+        protected override void DisposeManagedResources()
+        {
+            states.Remove(State);
+            delegates.Clear();
+        }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();
             Library.LevelDBComparatorDestroy(NativeHandle);
-            states.Remove(State);
             State = IntPtr.Zero;
         }
     }

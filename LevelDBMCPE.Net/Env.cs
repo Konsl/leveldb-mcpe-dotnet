@@ -11,6 +11,8 @@ namespace LevelDBMCPE
             return new Env(Library.LevelDBEnvCreateDefault());
         }
 
+        protected override void DisposeManagedResources() { }
+
         protected override void InternalClose()
         {
             EnsureNotDisposed();
