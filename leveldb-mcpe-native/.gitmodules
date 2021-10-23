@@ -1,0 +1,6 @@
+[submodule "Projects/leveldb-mcpe"]
+	path = Projects/leveldb-mcpe
+	url = https://github.com/Mojang/leveldb-mcpe.git
+[submodule "Projects/zlib"]
+	path = Projects/zlib
+	url = https://github.com/madler/zlib.git
