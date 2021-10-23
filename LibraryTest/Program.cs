@@ -63,31 +63,44 @@ namespace LibraryTest
             Console.WriteLine($"~local_player: {db.ApproximateSize("~local_player")} bytes");
 
             byte[] local_player = db.Get(LevelDB.StringToBytes("~local_player"), readOptions);
-            for (int i = 0; i < local_player.Length / 16; i++)
+            HexDump(local_player);
+
+            Console.ReadKey();
+
+            //iterator.Destroy();
+            //db.ReleaseSnapshot(snapshot);
+            //readOptions.Destroy();
+            //db.Close();
+            //options.Destroy();
+        }
+
+        public static void HexDump(byte[] array)
+        {
+            for (int i = 0; i < array.Length / 16; i++)
             {
-                byte[] arr0 = local_player.Skip(i * 16).Take(8).ToArray();
+                byte[] arr0 = array.Skip(i * 16).Take(8).ToArray();
                 Console.Write(string.Join(" ", from byte val in arr0 select val.ToString("X2")));
-                byte[] arr1 = local_player.Skip(i * 16 + 8).Take(8).ToArray();
+                byte[] arr1 = array.Skip(i * 16 + 8).Take(8).ToArray();
                 Console.Write("  " + string.Join(" ", from byte val in arr1 select val.ToString("X2")));
                 Console.Write("  " + string.Join(" ", PrintableStringFromBytes(arr0)));
                 Console.WriteLine("" + string.Join(" ", PrintableStringFromBytes(arr1)));
             }
 
             {
-                int rest = local_player.Length % 16;
+                int rest = array.Length % 16;
                 byte[] arr0 = null;
                 byte[] arr1 = null;
                 if (rest != 0)
                 {
-                    arr0 = local_player.Skip(local_player.Length - local_player.Length % 16).Take(Math.Min(local_player.Length % 16, 8)).ToArray();
+                    arr0 = array.Skip(array.Length - array.Length % 16).Take(Math.Min(array.Length % 16, 8)).ToArray();
                     Console.Write(string.Join(" ", from byte val in arr0 select val.ToString("X2")));
-                    Console.Write(new string(' ', (8 - Math.Min(local_player.Length % 16, 8)) * 3));
+                    Console.Write(new string(' ', (8 - Math.Min(array.Length % 16, 8)) * 3));
 
                     if (rest > 8)
                     {
-                        arr1 = local_player.Skip(local_player.Length - local_player.Length % 16 + 8).Take(local_player.Length % 16 - 8).ToArray();
+                        arr1 = array.Skip(array.Length - array.Length % 16 + 8).Take(array.Length % 16 - 8).ToArray();
                         Console.Write("  " + string.Join(" ", from byte val in arr1 select val.ToString("X2")));
-                        Console.Write(new string(' ', (16 - local_player.Length % 16) * 3));
+                        Console.Write(new string(' ', (16 - array.Length % 16) * 3));
                     }
                     else
                     {
@@ -106,14 +119,6 @@ namespace LibraryTest
                     }
                 }
             }
-
-            Console.ReadKey();
-
-            //iterator.Destroy();
-            //db.ReleaseSnapshot(snapshot);
-            //readOptions.Destroy();
-            //db.Close();
-            //options.Destroy();
         }
 
         public static string PrintableStringFromBytes(byte[] bytes)
