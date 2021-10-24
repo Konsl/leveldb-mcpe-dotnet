@@ -10,3 +10,4 @@ leveldb-mcpe for C#
 - export all functions in c.h
 - function to set a specific compressor in leveldb_options_t
 - support for a custom logger implementation
+- support for setting a decompress allocator
