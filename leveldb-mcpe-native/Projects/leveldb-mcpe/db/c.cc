@@ -15,6 +15,7 @@
 #include "leveldb/options.h"
 #include "leveldb/status.h"
 #include "leveldb/write_batch.h"
+#include "leveldb/decompress_allocator.h"
 #include "leveldb/zlib_compressor.h"
 #include "leveldb/zlib_compressor.h"
 #ifdef SNAPPY
@@ -594,6 +595,11 @@ void leveldb_readoptions_set_snapshot(
     leveldb_readoptions_t* opt,
     const leveldb_snapshot_t* snap) {
   opt->rep.snapshot = (snap ? snap->rep : NULL);
+}
+
+DLLX void leveldb_readoptions_set_use_decompress_allocator(leveldb_readoptions_t* opt, unsigned char v)
+{
+    opt->rep.decompress_allocator = v ? new leveldb::DecompressAllocator() : NULL;
 }
 
 leveldb_writeoptions_t* leveldb_writeoptions_create() {

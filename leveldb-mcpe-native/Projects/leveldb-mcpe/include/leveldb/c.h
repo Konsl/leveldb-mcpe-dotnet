@@ -255,6 +255,9 @@ extern DLLX void leveldb_readoptions_set_fill_cache(
 extern DLLX void leveldb_readoptions_set_snapshot(
     leveldb_readoptions_t*,
     const leveldb_snapshot_t*);
+extern DLLX void leveldb_readoptions_set_use_decompress_allocator(
+    leveldb_readoptions_t*,
+    unsigned char);
 
 /* Write options */
 

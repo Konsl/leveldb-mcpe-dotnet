@@ -45,5 +45,14 @@ namespace LevelDBMCPE
                 Library.LevelDBReadOptionsSetSnapshot(NativeHandle, value);
             }
         }
+
+        public bool UseDecompressAllocator
+        {
+            set
+            {
+                EnsureNotDisposed();
+                Library.LevelDBReadOptionsSetUseDecompressAllocator(NativeHandle, value);
+            }
+        }
     }
 }

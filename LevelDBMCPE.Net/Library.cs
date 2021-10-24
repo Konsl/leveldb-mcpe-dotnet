@@ -106,6 +106,7 @@ namespace LevelDBMCPE
             _leveldb_readoptions_set_verify_checksums = (leveldb_readoptions_set_verify_checksums)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_readoptions_set_verify_checksums"), typeof(leveldb_readoptions_set_verify_checksums));
             _leveldb_readoptions_set_fill_cache = (leveldb_readoptions_set_fill_cache)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_readoptions_set_fill_cache"), typeof(leveldb_readoptions_set_fill_cache));
             _leveldb_readoptions_set_snapshot = (leveldb_readoptions_set_snapshot)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_readoptions_set_snapshot"), typeof(leveldb_readoptions_set_snapshot));
+            _leveldb_readoptions_set_use_decompress_allocator = (leveldb_readoptions_set_use_decompress_allocator)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_readoptions_set_use_decompress_allocator"), typeof(leveldb_readoptions_set_use_decompress_allocator));
             _leveldb_writeoptions_create = (leveldb_writeoptions_create)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_writeoptions_create"), typeof(leveldb_writeoptions_create));
             _leveldb_writeoptions_destroy = (leveldb_writeoptions_destroy)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_writeoptions_destroy"), typeof(leveldb_writeoptions_destroy));
             _leveldb_writeoptions_set_sync = (leveldb_writeoptions_set_sync)Marshal.GetDelegateForFunctionPointer(GetProcAddress(LibraryHandle, "leveldb_writeoptions_set_sync"), typeof(leveldb_writeoptions_set_sync));
@@ -343,6 +344,9 @@ namespace LevelDBMCPE
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private unsafe delegate void leveldb_readoptions_set_snapshot(IntPtr readoptions, IntPtr snapshot);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void leveldb_readoptions_set_use_decompress_allocator(IntPtr readoptions, byte value);
+
         /* Write options */
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -463,6 +467,7 @@ namespace LevelDBMCPE
         private static leveldb_readoptions_set_verify_checksums _leveldb_readoptions_set_verify_checksums;
         private static leveldb_readoptions_set_fill_cache _leveldb_readoptions_set_fill_cache;
         private static leveldb_readoptions_set_snapshot _leveldb_readoptions_set_snapshot;
+        private static leveldb_readoptions_set_use_decompress_allocator _leveldb_readoptions_set_use_decompress_allocator;
         private static leveldb_writeoptions_create _leveldb_writeoptions_create;
         private static leveldb_writeoptions_destroy _leveldb_writeoptions_destroy;
         private static leveldb_writeoptions_set_sync _leveldb_writeoptions_set_sync;
@@ -1121,6 +1126,12 @@ namespace LevelDBMCPE
         {
             Init();
             _leveldb_readoptions_set_snapshot(readoptions, snapshot);
+        }
+
+        public static void LevelDBReadOptionsSetUseDecompressAllocator(IntPtr readoptions, bool value)
+        {
+            Init();
+            _leveldb_readoptions_set_use_decompress_allocator(readoptions, (byte)(value ? 1 : 0));
         }
 
         public static IntPtr LevelDBWriteOptionsCreate()

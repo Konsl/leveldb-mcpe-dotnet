@@ -37,6 +37,7 @@ namespace LibraryTest
             readOptions.VerifyChecksums = false;
             Snapshot snapshot = db.CreateSnapshot();
             readOptions.Snapshot = snapshot;
+            readOptions.UseDecompressAllocator = true;
 
             Iterator iterator = db.CreateIterator(readOptions);
 
